@@ -7,6 +7,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 
 public class MainScene extends Application {
