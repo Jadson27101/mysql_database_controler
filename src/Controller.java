@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
     @FXML Button btnExecute;
     @FXML TextArea showTable;
-    @FXML TextField sqlExecute;
+    @FXML TextField sqlQuery;
     static final String DB_URL = "jdbc:mysql://localhost/Alpinism";
     static final String USER = "root";
     static final String PASS = "";
@@ -22,7 +22,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Controller controller = new Controller();
         btnExecute.setOnAction((e)->{
-            String sql = sqlExecute.getText();
+            String sql = sqlQuery.getText();
             try {
                 databaseQuery(sql);
                 showTable.setText(String.valueOf(resultOfTable));
