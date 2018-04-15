@@ -11,17 +11,20 @@ import java.util.ResourceBundle;
 
 
 public class Controller implements Initializable {
-    @FXML Button btnExecute;
-    @FXML TextArea showTable;
-    @FXML TextField sqlQuery;
+    @FXML
+    Button btnExecute;
+    @FXML
+    TextArea showTable;
+    @FXML
+    TextField sqlQuery;
     static final String DB_URL = "jdbc:mysql://localhost/Alpinism";
     static final String USER = "root";
     static final String PASS = "";
     ArrayList<Object> resultOfTable;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Controller controller = new Controller();
-        btnExecute.setOnAction((e)->{
+        btnExecute.setOnAction((e) -> {
             String sql = sqlQuery.getText();
             try {
                 databaseQuery(sql);
@@ -33,39 +36,46 @@ public class Controller implements Initializable {
             }
         });
     }
+
     private void databaseQuery(String sql) throws ClassNotFoundException, SQLException {
         Connection conn = null;
         Statement stmt = null;
-        //STEP 2: Register JDBC driver
         Class.forName("com.mysql.jdbc.Driver");
-
-        //STEP 3: Open a connection
         System.out.println("Connecting to database...");
         conn = DriverManager.getConnection(DB_URL, USER, PASS);
-
-        //STEP 4: Execute a query
         System.out.println("Creating statement...");
         stmt = conn.createStatement();
         //String sql;
         //sql = "SELECT * FROM People";
+        String[]arrName = getColumnName(stmt);
         ResultSet rs = stmt.executeQuery(sql);
-
-        //STEP 5: Extract data from result set
-        resultOfTable = new ArrayList<>();
-        while (rs.next()) {
-            //Retrieve by column name
-            int id = rs.getInt("id");
-            String first = rs.getString("FirstName");
-            String last = rs.getString("LastName");
-            String address = rs.getString("Address");
-            resultOfTable.add(id);
-            resultOfTable.add(first);
-            resultOfTable.add(last);
-            resultOfTable.add(address);
-        }
-        //STEP 6: Clean-up environment
+        printTable(rs, arrName);
         rs.close();
         stmt.close();
         conn.close();
+    }
+
+    private void printTable(ResultSet rs, String arr[]) throws SQLException {
+        resultOfTable = new ArrayList<>();
+        while (rs.next()) {
+            //Retrieve by column name
+            for (int i = 0; i < arr.length; i++) {
+                String id = rs.getString(arr[i]);
+                resultOfTable.add(id);
+            }
+        }
+    }
+
+    private String[] getColumnName(Statement statement) throws SQLException {
+        ResultSet results = statement.executeQuery("SELECT * FROM People");
+        ResultSetMetaData metaData = results.getMetaData();
+        int count = metaData.getColumnCount(); //number of column
+        String columnName[] = new String[count];
+        for (int i = 1; i <= count; i++) {
+            columnName[i - 1] = metaData.getColumnLabel(i);
+            System.out.println(columnName[i - 1]);
+        }
+        results.close();
+        return columnName;
     }
 }
