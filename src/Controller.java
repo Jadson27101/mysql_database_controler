@@ -1,8 +1,6 @@
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.net.URL;
 import java.sql.*;
@@ -17,13 +15,17 @@ public class Controller implements Initializable {
     TextArea showTable;
     @FXML
     TextField sqlQuery;
+    @FXML
+    TableView TableList;
     static final String DB_URL = "jdbc:mysql://localhost/Alpinism";
     static final String USER = "root";
     static final String PASS = "";
     ArrayList<Object> resultOfTable;
+    ArrayList<Object> TableName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         btnExecute.setOnAction((e) -> {
             String sql = sqlQuery.getText();
             try {
@@ -36,18 +38,22 @@ public class Controller implements Initializable {
             }
         });
     }
-
-    private void databaseQuery(String sql) throws ClassNotFoundException, SQLException {
+    private Connection connection() throws ClassNotFoundException, SQLException {
         Connection conn = null;
         Statement stmt = null;
         Class.forName("com.mysql.jdbc.Driver");
         System.out.println("Connecting to database...");
         conn = DriverManager.getConnection(DB_URL, USER, PASS);
-        System.out.println("Creating statement...");
+        return conn;
+    }
+
+    private void databaseQuery(String sql) throws ClassNotFoundException, SQLException {
+        Connection conn = connection();
+        Statement stmt = null;
         stmt = conn.createStatement();
         //String sql;
         //sql = "SELECT * FROM People";
-        String[]arrName = getColumnName(stmt);
+        String[]arrName = getColumnName(stmt, sql);
         ResultSet rs = stmt.executeQuery(sql);
         printTable(rs, arrName);
         rs.close();
@@ -58,16 +64,24 @@ public class Controller implements Initializable {
     private void printTable(ResultSet rs, String arr[]) throws SQLException {
         resultOfTable = new ArrayList<>();
         while (rs.next()) {
-            //Retrieve by column name
-            for (int i = 0; i < arr.length; i++) {
-                String id = rs.getString(arr[i]);
-                resultOfTable.add(id);
-            }
+                for (int i = 0; i < arr.length; i++) {
+                    String id = rs.getString(arr[i]);
+                    resultOfTable.add(id);
+                }
         }
     }
 
-    private String[] getColumnName(Statement statement) throws SQLException {
-        ResultSet results = statement.executeQuery("SELECT * FROM People");
+    private ArrayList<Object> getTableName(Connection conn) throws SQLException {
+        TableName = new ArrayList<>();
+        DatabaseMetaData md = conn.getMetaData();
+        ResultSet rs = md.getTables(null, null, "%", null);
+        while (rs.next()) {
+            TableName.add(rs.getString(3));
+        }
+        return TableName;
+    }
+    private String[] getColumnName(Statement statement , String sql) throws SQLException {
+        ResultSet results = statement.executeQuery(sql);
         ResultSetMetaData metaData = results.getMetaData();
         int count = metaData.getColumnCount(); //number of column
         String columnName[] = new String[count];
