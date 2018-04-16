@@ -53,19 +53,26 @@ public class Controller implements Initializable {
         stmt = conn.createStatement();
         //String sql;
         //sql = "SELECT * FROM People";
-        String[]arrName = getColumnName(stmt, sql);
-        ResultSet rs = stmt.executeQuery(sql);
-        printTable(rs, arrName);
-        rs.close();
+        //String[]arrName = getColumnName(stmt, sql);
+        //stmt.executeUpdate(sql);
+            if(sql.charAt(0) == 'S'){
+                ResultSet rs = stmt.executeQuery(sql);
+                printTable(rs);
+                rs.close();
+            } else {
+                stmt.execute(sql);
+            }
         stmt.close();
         conn.close();
     }
 
-    private void printTable(ResultSet rs, String arr[]) throws SQLException {
+    private void printTable(ResultSet rs) throws SQLException {
+        ResultSetMetaData metadata = rs.getMetaData();
+        int columnCount = metadata.getColumnCount();
         resultOfTable = new ArrayList<>();
         while (rs.next()) {
-                for (int i = 0; i < arr.length; i++) {
-                    String id = rs.getString(arr[i]);
+                for (int i = 0; i < columnCount; i++) {
+                    String id = rs.getString(i+1);
                     resultOfTable.add(id);
                 }
         }
@@ -81,7 +88,7 @@ public class Controller implements Initializable {
         return TableName;
     }
     private String[] getColumnName(Statement statement , String sql) throws SQLException {
-        ResultSet results = statement.executeQuery(sql);
+        ResultSet results = statement.executeQuery("SELECT * FROM");
         ResultSetMetaData metaData = results.getMetaData();
         int count = metaData.getColumnCount(); //number of column
         String columnName[] = new String[count];
