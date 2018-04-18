@@ -30,7 +30,8 @@ public class Controller implements Initializable {
     private Connection con;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        state.setDisable(true);
+        showTable.setDisable(true);
         connect.setOnAction((e) ->{
             String addressURL = address.getText();
             String login = loginDB.getText();
