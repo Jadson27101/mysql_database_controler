@@ -19,7 +19,7 @@ public class MainScene extends Application {
     public void start(Stage primaryStage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("Styles.fxml"));
         Scene scene = new Scene(root, 600,450);
-        primaryStage.setTitle("FXML Welcome");
+        primaryStage.setTitle("Frol database");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
 
