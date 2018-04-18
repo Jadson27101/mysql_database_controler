@@ -28,14 +28,18 @@ public class Controller implements Initializable {
     private ArrayList<Object> resultOfTable;
     private ArrayList<Object> TableName;
     private Connection con;
+    private String addressURL;
+    private String login;
+    private String pass;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         state.setDisable(true);
         showTable.setDisable(true);
+        showTable.setStyle("-fx-opacity: 2.0 ;");
         connect.setOnAction((e) ->{
-            String addressURL = address.getText();
-            String login = loginDB.getText();
-            String pass = pwdDB.getText();
+            addressURL = address.getText();
+            login = loginDB.getText();
+            pass = pwdDB.getText();
             try {
                con = connection(addressURL, login, pass);
             } catch (ClassNotFoundException e1) {
@@ -49,8 +53,6 @@ public class Controller implements Initializable {
             try {
                 databaseQuery(sql, con);
                 showTable.setText(String.valueOf(resultOfTable));
-            } catch (ClassNotFoundException e1) {
-                e1.printStackTrace();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -65,15 +67,21 @@ public class Controller implements Initializable {
         checkConnect(DB_URL, USER, PASS);
         return conn;
     }
-    private void checkConnect(String DB_URL, String USER, String PASS) throws SQLException {
-        try(Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);){
+    private void checkConnect(String DB_URL, String USER, String PASS) {
+        try(Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)){
             state.setText("Access");
         } catch (SQLException e){
             state.setText("Can't connect");
         }
     }
-
-    private void databaseQuery(String sql, Connection conn) throws ClassNotFoundException, SQLException {
+    private Connection getConn(String DB_URL, String USER, String PASS){
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            return DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch(Exception e){}
+        return null;
+    }
+    private void databaseQuery(String sql, Connection conn) throws SQLException {
         Statement stmt = null;
         stmt = conn.createStatement();
         //String sql;
@@ -86,9 +94,10 @@ public class Controller implements Initializable {
                 rs.close();
             } else {
                 stmt.execute(sql);
+                getConn(addressURL, login, pass);
             }
+            stmt.close();
     }
-
 
     private void printTable(ResultSet rs) throws SQLException {
         ResultSetMetaData metadata = rs.getMetaData();
